@@ -8,21 +8,23 @@ EVEN = "show-result_even.php"
 ODD = "show-result_odd.php"
 URL = BASEURL+EVEN
 
+
 headers = {}
 #Add custom headers
 headers['Referer'] = "http://wbutech.net/result_even.php"
 headers['Origin'] = "http://wbutech.net"
 headers['Host'] = "wbutech.net"
 headers['User-Agent']= 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-
 #Create data
-data = {'semno':'6', 'rollno': '13000112122', 'rectype': '1'}
+
 
 def dumpData(headers, data, url):
 	try:
 		dump = requests.post(url, data=data, headers=headers)
 		if (dump.status_code == 200):
-			parseData(dump.text)
+			parsed = parseData(dump.text)
+			if(parsed):
+				logData(parsed)
 		else:
 			print "[-] Status code of "+dump.status_code+" received."
 	except requests.ConnectionError as connecterror:
@@ -33,8 +35,11 @@ def parseData(dump):
 	tables = soup.find_all('table')
 
 	#tables[0] -> name and roll no
-	name = tables[0].find_all('th')[1].text.split(':')[1].strip()
-	roll = tables[0].find_all('th')[2].text.split(':')[1].strip()
+	try:
+		name = tables[0].find_all('th')[1].text.split(':')[1].strip()
+		roll = tables[0].find_all('th')[2].text.split(':')[1].strip()
+	except IndexError:
+		return False
 
 	#user is a dictionary. Keys : name, roll, marks, sgpa_even, sgpa_odd, ygpa
 	user = {'name':name, 'roll':roll}
@@ -65,7 +70,19 @@ def parseData(dump):
 	user['sgpa_odd'] = sgpa_odd
 	user['sgpa_even'] = sgpa_even
 	user['ygpa'] = ygpa
+	return user
 
-	print user
+def logData(data):
+	writer=csv.writer(sys.stdout)
+	writer.writerow((data['name'], data['roll'], data['sgpa_even'], data['ygpa']))
 
-dumpData(headers, data, "http://wbutech.net/show-result_even.php")
+def main():
+	sem = int(raw_input("Enter semester : "))
+	rollno = int(raw_input("Enter starting roll number: "))
+	limit = int(raw_input("Enter total students : "))
+	for i in range(0,limit+1):
+		data = {'semno':str(sem), 'rollno': str(rollno+i), 'rectype': '1'}
+		dumpData(headers, data, "http://wbutech.net/show-result_even.php")
+
+#dumpData(headers, data, "http://wbutech.net/show-result_even.php")
+main()
