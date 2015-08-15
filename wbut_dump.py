@@ -131,13 +131,13 @@ def main():
 				print "\nInterrupted. Not enough data to continue. Exiting."	
 				sys.exit(0)
 
-	if options.semester % 2==0:
+	if int(options.semester) % 2==0:
 		q="even"
 	else:
 		q="odd"
 
 	for i in range(0,limit+1):
-		data = {'semno':str(options.semester), 'rollno': str(options.roll+i), 'rectype': '1'}
+		data = {'semno':str(options.semester), 'rollno': str(int(options.roll)+i), 'rectype': '1'}
 		dumpData(headers, data, "http://wbutech.net/show-result_even.php",q)
 
 #dumpData(headers, data, "http://wbutech.net/show-result_even.php")
