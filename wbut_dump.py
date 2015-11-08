@@ -31,7 +31,7 @@ def dumpData(headers, data, url, q):
 		print "[-] Error while connecting to server."
 
 def parseData(dump,q):
-	soup = BS(dump)
+	soup = BS(dump,"lxml")
 	tables = soup.find_all('table')
 
 	#tables[0] -> name and roll no
@@ -127,6 +127,7 @@ def main():
 		else:
 			try:
 				options.roll=int(raw_input("Enter roll number : "))
+				limit = 0
 			except KeyboardInterrupt:
 				print "\nInterrupted. Not enough data to continue. Exiting."	
 				sys.exit(0)
